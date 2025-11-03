@@ -1,0 +1,48 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity pwm is
+    Generic (
+        RESOLUTION : integer := 256;     -- Résolution 8 bits par défaut
+        ACTIVE_LOW : boolean := false    -- PWM actif haut par défaut
+    );
+    Port ( 
+        clk : in STD_LOGIC;
+        reset : in STD_LOGIC;
+        rc : in integer range 0 to RESOLUTION-1;  -- Rapport cyclique
+        pwm_out : out STD_LOGIC
+    );
+end pwm;
+
+architecture Behavioral of pwm is
+    signal compteur : integer range 0 to RESOLUTION-1 := 0;
+    signal pwm_signal : STD_LOGIC;
+    
+begin
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            compteur <= 0;
+            pwm_signal <= '0';
+        elsif rising_edge(clk) then
+            -- Incrémentation du compteur
+            if compteur = RESOLUTION-1 then
+                compteur <= 0;
+            else
+                compteur <= compteur + 1;
+            end if;
+            
+            -- Génération du signal PWM
+            if compteur < rc then
+                pwm_signal <= '1';
+            else
+                pwm_signal <= '0';
+            end if;
+        end if;
+    end process;
+    
+    -- Gestion actif haut/bas
+    pwm_out <= pwm_signal when not ACTIVE_LOW else not pwm_signal;
+    
+end Behavioral;

@@ -1,0 +1,34 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity diviseur_freq is
+    Generic (
+        FACTEUR_DIVISION : integer := 50  -- Division importante
+    );
+    Port ( 
+        clk_in : in STD_LOGIC;
+        reset : in STD_LOGIC;
+        clk_out : out STD_LOGIC
+    );
+end diviseur_freq;
+
+architecture Behavioral of diviseur_freq is
+    signal compteur : integer range 0 to FACTEUR_DIVISION-1 := 0;
+begin
+    process(clk_in, reset)
+    begin
+        if reset = '1' then
+            compteur <= 0;
+            clk_out <= '0';
+        elsif rising_edge(clk_in) then
+            if compteur = FACTEUR_DIVISION-1 then
+                compteur <= 0;
+                clk_out <= '1';  -- Impulsion brève
+            else
+                compteur <= compteur + 1;
+                clk_out <= '0';
+            end if;
+        end if;
+    end process;
+end Behavioral;
